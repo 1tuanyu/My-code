@@ -1,0 +1,18 @@
+import tushare as ts
+from openpyxl import load_workbook
+from openpyxl import Workbook
+
+data = ts.get_k_data('603993', start='2017-01-01')
+
+data.to_excel('D:\\资料for团鱼\\script\\stock.xlsx')
+
+wb = load_workbook('D:\\资料for团鱼\\script\\stock.xlsx')
+ws = wb.get_sheet_by_name('Sheet1')
+max_len = len(tuple(ws.rows))
+
+def rate(old_share, new_share):
+     differ = new_share - old_share
+     return differ/old_share
+
+rates = [ws['D'+str(i)].value for i in range(2, max_len)]
+print(str(sum(rates)/len(rates)*100) + '%')
