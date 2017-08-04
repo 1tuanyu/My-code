@@ -2,6 +2,7 @@ import tushare as ts
 from openpyxl import load_workbook
 from openpyxl import Workbook
 import os
+import math
 from collections import Counter
 
 def rate(old_share, new_share):
@@ -25,3 +26,41 @@ def share_data(code):
      
 
 share_data('600010')
+
+
+def rate(old_share, new_share):
+     differ = new_share - old_share
+     return differ/old_share
+
+def prob(change):
+     return 1 if change > 0 else -1
+
+def perc(number):
+     return str(round(number*100)) + '%'
+
+def mean(x):
+     return sum(x)/len(x)
+
+def de_mean(x):
+     x_bar = mean(x)
+     return [pow((x_i - x_bar), 2) for x_i in x]
+     
+def variance(x):
+     n = len(x)
+     deviations = de_mean(x)
+     return sum(deviations)/(n-1)
+
+def share_data(code):
+     data = ts.get_k_data(code, start='2017-01-01')
+     path = os.path.join("D:\\资料for团鱼\\script\\share\\",code+'.xlsx')
+     data.to_excel(path)
+     wb = load_workbook(path)
+     ws = wb.get_sheet_by_name('Sheet1')
+     max_len = len(tuple(ws.rows))
+     rates = [ws['D'+str(i)].value for i in range(2, max_len)]
+     print(variance(rates))
+     #probs = list(Counter(list(map(prob, rates))).values())
+     #print(code + "自2017-01-01以来，股价上涨的概率为:", perc(probs[0]/sum(probs)))
+     #print(code + "自2017-01-01以来，股价下跌的概率为:", perc(probs[1]/sum(probs)))
+
+share_data('600792')
