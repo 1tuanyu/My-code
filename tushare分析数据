@@ -64,3 +64,60 @@ def share_data(code):
      #print(code + "自2017-01-01以来，股价下跌的概率为:", perc(probs[1]/sum(probs)))
 
 share_data('600792')
+
+*********************************************************
+
+import tushare as ts
+from openpyxl import load_workbook
+from openpyxl import Workbook
+import os
+import math
+from collections import Counter
+
+def rate(old_share, new_share):
+     differ = new_share - old_share
+     return differ/old_share
+
+def prob(change):
+     return 1 if change > 0 else -1
+
+def perc(number):
+     return str(round(number*100)) + '%'
+
+def mean(x):
+     return sum(x)/len(x)
+
+def de_mean(x):
+     x_bar = mean(x)
+     return [pow((x_i - x_bar), 2) for x_i in x]
+     
+def variance(x):
+     n = len(x)
+     deviations = de_mean(x)
+     return sum(deviations)/(n-1)
+
+def quartering(arrys):
+     i = round(len(arrys)/4)
+     return arrys[0:i], arrys[i:i*2], arrys[i*2:i*3], arrys[i*3:i*4]
+
+def chance(arrys):
+     probs = list(Counter(list(map(prob, arrys))).values())
+     return probs
+
+def share_year_data(code):
+     year = input("请输入年份：")
+     start_date = year+'-01-01'
+     end_date = year +'-12-12'
+     data = ts.get_k_data(code, start=start_date , end= end_date)
+     path = os.path.join("E:\\python\\",code+'.xlsx')
+     data.to_excel(path)
+     wb = load_workbook(path)
+     ws = wb.get_sheet_by_name('Sheet1')
+     max_len = len(tuple(ws.rows))
+     rates = [rate(ws['D'+str(i)].value, ws['D'+str(i+1)].value) for i in range(2, max_len)]
+     #print(variance(rates))
+     for probs in quartering(rates):
+          print(code + "-股价上涨的概率为:" , perc(probs[0]/sum(probs)))
+          print(code + "-股价下跌的概率为:" , perc(probs[1]/sum(probs)))
+
+share_year_data('002269')
