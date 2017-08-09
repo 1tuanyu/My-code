@@ -74,9 +74,42 @@ import os
 import math
 from collections import Counter
 
+#股票涨幅
 def rate(old_share, new_share):
      differ = new_share - old_share
      return differ/old_share
+
+#平均数
+def mean(x):
+     return sum(x)/len(x)
+
+#各项与平均值的差值集合
+def de_mean(x):
+     x_bar = mean(x)
+     return [x_i - x_bar for x_i in x]
+
+#协方差
+def variance(x):
+     n = len(x)
+     deviations = de_mean(x)
+     return sum(deviations)/(n-1)
+
+#标准差
+def standard_deviation(x):
+     return math.sqrt(variance(x))
+
+#中位数
+def quantile(x, p):
+     p_index = int(p * len(x))
+     return sorted(x)[p_index]
+
+def correlation(x, y):
+     stdev_x = standard_deviation(x)
+     stdev_y = standard_deviation(y)
+     if stdev_x > 0 and stdev_y > 0:
+          return covariance(x, y) / stdev_x / stdev_y
+     else:
+          return 0
 
 def prob(change):
      return 1 if change > 0 else -1
@@ -84,21 +117,15 @@ def prob(change):
 def perc(number):
      return str(round(number*100)) + '%'
 
-def mean(x):
-     return sum(x)/len(x)
-
-def de_mean(x):
-     x_bar = mean(x)
-     return [pow((x_i - x_bar), 2) for x_i in x]
-     
-def variance(x):
-     n = len(x)
-     deviations = de_mean(x)
-     return sum(deviations)/(n-1)
-
 def quartering(arrys):
      i = round(len(arrys)/4)
-     return arrys[0:i], arrys[i:i*2], arrys[i*2:i*3], arrys[i*3:i*4]
+     month = []
+     e, f = 0, i
+     while e < len(arrys):
+          month.append(arrys[e:f])
+          e = e + i
+          f = f + i
+     return month
 
 def chance(arrys):
      probs = list(Counter(list(map(prob, arrys))).values())
@@ -109,7 +136,7 @@ def share_year_data(code):
      start_date = year+'-01-01'
      end_date = year +'-12-12'
      data = ts.get_k_data(code, start=start_date , end= end_date)
-     path = os.path.join("E:\\python\\",code+'.xlsx')
+     path = os.path.join("D:\\资料for团鱼\\script\\share\\",code+'.xlsx')
      data.to_excel(path)
      wb = load_workbook(path)
      ws = wb.get_sheet_by_name('Sheet1')
@@ -117,6 +144,7 @@ def share_year_data(code):
      rates = [rate(ws['D'+str(i)].value, ws['D'+str(i+1)].value) for i in range(2, max_len)]
      #print(variance(rates))
      for probs in quartering(rates):
+          probs = chance(probs)
           print(code + "-股价上涨的概率为:" , perc(probs[0]/sum(probs)))
           print(code + "-股价下跌的概率为:" , perc(probs[1]/sum(probs)))
 
