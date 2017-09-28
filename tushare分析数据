@@ -137,15 +137,26 @@ def share_year_data(code):
      end_date = year +'-12-12'
      data = ts.get_k_data(code, start=start_date , end= end_date)
      path = os.path.join("D:\\资料for团鱼\\script\\share\\",code+'.xlsx')
+
      data.to_excel(path)
      wb = load_workbook(path)
      ws = wb.get_sheet_by_name('Sheet1')
      max_len = len(tuple(ws.rows))
-     rates = [rate(ws['D'+str(i)].value, ws['D'+str(i+1)].value) for i in range(2, max_len)]
-     #print(variance(rates))
-     for probs in quartering(rates):
-          probs = chance(probs)
-          print(code + "-股价上涨的概率为:" , perc(probs[0]/sum(probs)))
-          print(code + "-股价下跌的概率为:" , perc(probs[1]/sum(probs)))
+
+     #涨幅
+     grow_rates, cut_rates = [], []
+     for i in range(2, max_len):
+          r = rate(ws['D'+str(i)].value, ws['D'+str(i+1)].value)
+          if r > 0:
+               grow_rates.append(r)
+          else:
+               cut_rates.append(r)
+
+     print(sum(grow_rates), sum(cut_rates))
+
+     #振幅
+     values = [ws['D'+str(i)].value for i in range(2, max_len)]
+     high_value = max(values)
+     low_value = min(values)
 
 share_year_data('002269')
