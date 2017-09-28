@@ -154,9 +154,12 @@ def share_year_data(code):
 
      print(sum(grow_rates), sum(cut_rates))
 
-     #振幅
+     #最大差价
      values = [ws['D'+str(i)].value for i in range(2, max_len)]
      high_value = max(values)
      low_value = min(values)
+     print('最大差价为：%s' % str(high_value-low_value))
+
+     #连涨次数
 
 share_year_data('002269')
