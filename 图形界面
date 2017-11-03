@@ -1,0 +1,47 @@
+from tkinter import *
+from tkinter.messagebox import *
+from docx import Document
+
+def wts():
+     doc = Document("商标代理委托书.docx")
+     global root
+     n = name.get()
+     a = adress.get()
+     m = mark.get()
+
+     if a== '' or n == '' or m == '':
+          showinfo(title='提示', message='信息不全，请补充！')
+     else:
+          #录入客户名称
+          doc.paragraphs[1].runs[1].text  =  ' '*5 + n + ' '*5
+          doc.paragraphs[1].runs[3].text = '   中   '
+          doc.paragraphs[2].runs[1].text = '   中   ' 
+          #录入商标名称
+          doc.paragraphs[3].runs[1].text = ' ' + m + ' '
+          #录入地址
+          doc.paragraphs[46].runs[1].text = a
+          doc.save('test_proxy.docx')
+     
+
+root = Tk()
+root.wm_title("小工具")
+
+Label(root, text='商标名称:', width=8, height=2).grid(row=0, column=0, sticky=W)
+mark = Entry(root,width=30)
+mark.grid(row=0, column=1, sticky=E)
+
+Label(root, text='客户名称:', width=8, height=2).grid(row=1, column=0, sticky=W)
+name = Entry(root,width=30)
+name.grid(row=1, column=1, sticky=E)
+
+Label(root, text='申请地址:', width=8, height=2).grid(row=2, column=0, sticky=W)
+adress = Entry(root,width=30)
+adress.grid(row=2, column=1, sticky=E)
+
+Label(root, text='业务类型:', width=8, height=2).grid(row=3, column=0, sticky=W)
+bussiness = Entry(root,width=30)
+bussiness.grid(row=3, column=1, sticky=E)
+
+Button(root, text='确认生成', width=8,command=wts).grid(row=4, column=0, sticky=W)
+
+root.mainloop()
