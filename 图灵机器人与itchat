@@ -1,0 +1,64 @@
+import requests
+import itchat
+import jieba
+from itchat.content  import *
+
+key = 'b3ed868eee7046749a3f1076aecb1be5'
+
+def get_response(msg):
+     apiUrl = 'http://www.tuling123.com/openapi/api'
+     data = {
+          'key' : key,
+          'info' : msg,
+          'userid' : 'Gianna'
+     }
+     try:
+          r = requests.post(apiUrl, data=data).json()
+          print(r.get('text'))
+     except:
+          return
+
+def judger_name(line):
+     friendList = itchat.get_friends(update=True)[1:]
+     line_list = jieba.cut(line)
+     for item in line_list:
+          if item in friendList:
+               print(line.split(item)[1])
+          else:
+               pass
+
+@itchat.msg_register(TEXT, isFriendChat=True, isGroupChat=True)
+def tuling_reply(msg):
+     defalutReply = '我收到' + msg['Text']
+     reply = get_response(msg['Text'])
+     return reply or defalutReply
+
+itchat.auto_login(hotReload = True)
+itchat.run()
+
+********************************************************************************************
+
+import itchat
+from itchat.content import *
+
+@itchat.msg_register([TEXT, MAP, CARD, NOTE, SHARING])
+def text_reply(msg):
+     itchat.send('%s: %s' % (msg['Type'], msg['Text']), msg['FromUserName'])
+
+@itchat.msg_register([PICTURE, RECORDING, ATTACHMENT, VIDEO])
+def download_files(msg):
+     msg['Text'](msg['FileName'])
+     return '@%s@%s' % ({'Picture' : 'img', 'Video' : 'vid'}.get(msg['Type'], 'fil'), msg['FileName'])
+
+@itchat.msg_register(FRIENDS)
+def add_friend(msg):
+     itchat.add_friend(**msg['Text'])
+     itchat.send_msg('Nice to meet you!', msg['RecommendInfo']['UserName'])
+
+@itchat.msg_register(TEXT, isGroupChat=True)
+def text_reply(msg):
+     if msg['isAt']:
+          itchat.send(u'@%s\u2005I recievd: %s' % (msg['ActualNickName'], msg['content']), msg['FromUserName'])
+
+itchat.auto_login(True)
+itchat.run()
