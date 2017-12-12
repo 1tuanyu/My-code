@@ -1,16 +1,18 @@
 from tkinter import *
+from tkinter import filedialog
 from tkinter.messagebox import *
 from docx import Document
+import os
 
 def wts():
      doc = Document("商标代理委托书.docx")
      global root
      n = name.get()
      a = adress.get()
-     m = mark.get()
+     m = str(mark.get())
 
      if a== '' or n == '' or m == '':
-          showinfo(title='提示', message='信息不全，请补充！')
+          showinfo(title='提示', message='信心不全，请补充！')
      else:
           #录入客户名称
           doc.paragraphs[1].runs[1].text  =  ' '*5 + n + ' '*5
@@ -20,8 +22,11 @@ def wts():
           doc.paragraphs[3].runs[1].text = ' ' + m + ' '
           #录入地址
           doc.paragraphs[46].runs[1].text = a
-          doc.save('test_proxy.docx')
-     
+          doc.save('委托书-'+m+'.docx')
+          
+def openfile():
+     r = filedialog.askopenfilename(title='打开文件')
+     print(r)
 
 root = Tk()
 root.wm_title("小工具")
@@ -43,5 +48,12 @@ bussiness = Entry(root,width=30)
 bussiness.grid(row=3, column=1, sticky=E)
 
 Button(root, text='确认生成', width=8,command=wts).grid(row=4, column=0, sticky=W)
+Button(root, text='选择文件', width=8,command=openfile).grid(row=4, column=1, sticky=W)
 
 root.mainloop()
+
+Arrays = {'注册':6, '异议': 7, '异议答辩':8, '更正':9, '变更':10, '删减':11, '续展':12, '转让':13, '注销':22, '撤三':23,
+                    '提供撤三使用证据':25, '补发商标变更，续展，转让证明':27, '补发商标证书':28, '撤回商标申请':31,
+                    '撤回删减商品申请':35
+          }
+
