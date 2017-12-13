@@ -1,32 +1,55 @@
-from tkinter import *
+ffrom tkinter import *
 from tkinter import filedialog
 from tkinter.messagebox import *
+from functools import reduce
 from docx import Document
 import os
 
-def wts():
+def docx(m, a, n):
      doc = Document("商标代理委托书.docx")
+     #录入客户名称
+     doc.paragraphs[1].runs[1].text  =  ' '*1 + n + ' '*1
+     doc.paragraphs[1].runs[3].text = '   中   '
+     doc.paragraphs[2].runs[1].text = '   中   ' 
+     #录入商标名称
+     doc.paragraphs[3].runs[1].text = ' ' + m + ' '
+     #录入地址
+     if len(a)>19:
+         a = a[:19] + '\n' + a[19:]
+         doc.paragraphs[46].runs[1].text = a
+         doc.paragraphs[46].add_run(text = 30*' ' +  '委托人盖章（签字）')
+     else:
+         doc.paragraphs[46].runs[1].text = a
+         doc.paragraphs[46].add_run(text = 19*' ' +  '委托人盖章（签字）')
+    #print(doc.paragraphs[46].runs[1].text)
+     doc.save('委托书-'+m+'.docx')
+    
+def wts():
      global root
      n = name.get()
      a = adress.get()
      m = str(mark.get())
 
      if a== '' or n == '' or m == '':
-          showinfo(title='提示', message='信心不全，请补充！')
+          showinfo(title='提示', message='信息不全，请补充！')
+     elif ';' in m:
+         items = m.split(';')[:-1]
+         for item in items:
+             docx(item, a, n)
+             print('生成｛' + item + '｝的委托书')
      else:
-          #录入客户名称
-          doc.paragraphs[1].runs[1].text  =  ' '*5 + n + ' '*5
-          doc.paragraphs[1].runs[3].text = '   中   '
-          doc.paragraphs[2].runs[1].text = '   中   ' 
-          #录入商标名称
-          doc.paragraphs[3].runs[1].text = ' ' + m + ' '
-          #录入地址
-          doc.paragraphs[46].runs[1].text = a
-          doc.save('委托书-'+m+'.docx')
-          
+          docx(m ,a, n)
+             
 def openfile():
-     r = filedialog.askopenfilename(title='打开文件')
-     print(r)
+     r = filedialog.askopenfilename(title='选择文件')
+     if '.txt' in r:
+         f = open(r)
+         fuc = lambda x, y : x.replace('\n', ';')+ y.replace('\n', ';')
+         m = str(reduce(fuc, f.readlines()))
+         mark.insert(0, m)
+         f.close()
+     else:
+          showinfo(title='提示', message='请打开一个txt文档！')
 
 root = Tk()
 root.wm_title("小工具")
@@ -48,7 +71,7 @@ bussiness = Entry(root,width=30)
 bussiness.grid(row=3, column=1, sticky=E)
 
 Button(root, text='确认生成', width=8,command=wts).grid(row=4, column=0, sticky=W)
-Button(root, text='选择文件', width=8,command=openfile).grid(row=4, column=1, sticky=W)
+Button(root, text='选择文件', width=8,command=openfile).grid(row=4, column=2, sticky=W)
 
 root.mainloop()
 
