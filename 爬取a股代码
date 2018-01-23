@@ -1,0 +1,44 @@
+from urllib.request import urlopen
+from bs4 import BeautifulSoup
+from openpyxl import load_workbook
+from openpyxl import Workbook
+import urllib
+import re
+
+list_url = 'http://quote.eastmoney.com/stocklist.html'
+global hdr
+global st_name, st_code
+st_name, st_code = [], []
+hdr = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
+       'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+       'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
+       'Accept-Encoding': 'none',
+       'Accept-Language': 'en-US,en;q=0.8',
+       'Connection': 'keep-alive'}
+
+def getUrl(url):
+    req = urllib.request.Request(url, headers=hdr)
+    html = urllib.request.urlopen(req)
+    bs = BeautifulSoup(html.read(), 'html5lib')
+    return bs
+
+def split_code(text):
+    e, f = text.split('(')
+    st_name.append(e)
+    st_code.append(f.split(')')[0])
+
+wb = Workbook()
+ws = wb.create_sheet('Sheet1')
+ws['A1'].value = '股票代码'
+ws['B1'].value = '股票名称'
+
+st_list = getUrl(list_url).find_all('a')
+for st in st_list:
+    if '(' in st.get_text():
+        split_code(st.get_text())
+
+for i in range(2, len(st_code)):
+    ws['A' + str(i)].value  = st_code[i-2]
+    ws['B' + str(i)].value  = st_name[i-2]
+
+wb.save('stocklist.xlsx')
