@@ -56,5 +56,32 @@ wb = load_workbook("new_stock.xlsx")
 ws = wb.get_sheet_by_name("Sheet1")
 max_len = len(tuple(ws.rows)) + 1
 
+def get_date(string):
+    string = str(string)
+    y = int(string[0:4])
+    m = int(string[5:6])
+    d = int(string[6:])
+    return y, m, d
+
+def first_month(code):
+    hist_data = ts.get_hist_data(code)
+    hist_data.to_excel(code+'.xlsx')
+    share_wb = load_workbook(code+'.xlsx')
+    share_ws = wb.get_sheet_by_name("Sheet1")
+    share_max_len = len(tuple(share_ws.rows)) + 1
+    share_values = [share_ws['D'+str(i)].value for i in range(share_max_len-30, share_max_len)]
+    max_value = max(share_values)
+    min_value = min(share_values)
+    if max_value > 2*min_value:
+        return True
+        return code
+    else:
+        return False
+
 for i in range(2, max_len):
-    if iws['P'+str(i)].value 
+    date = ws['P'+str(i)].value
+    y, m, d = get_date(date)
+    if y > 2013:
+        code = str(ws['A'+str(i)].value)
+        if first_month(code):
+            print(code)
