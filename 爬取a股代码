@@ -42,3 +42,19 @@ for i in range(2, len(st_code)):
     ws['B' + str(i)].value  = st_name[i-2]
 
 wb.save('stocklist.xlsx')
+
+————————————————————————————————————————————————————————————————————————
+
+import tushare as ts
+from openpyxl import load_workbook
+from openpyxl import Workbook
+
+data = ts.get_stock_basics()
+data.to_excel('new_stock.xlsx')
+
+wb = load_workbook("new_stock.xlsx")
+ws = wb.get_sheet_by_name("Sheet1")
+max_len = len(tuple(ws.rows)) + 1
+
+for i in range(2, max_len):
+    if iws['P'+str(i)].value 
