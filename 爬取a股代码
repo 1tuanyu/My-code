@@ -46,11 +46,15 @@ wb.save('stocklist.xlsx')
 ————————————————————————————————————————————————————————————————————————
 
 import tushare as ts
+import os
 from openpyxl import load_workbook
 from openpyxl import Workbook
 
-data = ts.get_stock_basics()
-data.to_excel('new_stock.xlsx')
+if os.path.exists("new_stock.xlsx"):
+    pass
+else:
+    data = ts.get_stock_basics()
+    data.to_excel('new_stock.xlsx')
 
 wb = load_workbook("new_stock.xlsx")
 ws = wb.get_sheet_by_name("Sheet1")
@@ -59,7 +63,7 @@ max_len = len(tuple(ws.rows)) + 1
 def get_date(string):
     string = str(string)
     y = int(string[0:4])
-    m = int(string[5:6])
+    m = int(string[4:6])
     d = int(string[6:])
     return y, m, d
 
@@ -78,10 +82,38 @@ def first_month(code):
     else:
         return False
 
+def count_equity(code, flow):
+
+    hist_data = ts.get_hist_data(code)
+    hist_data.to_excel(code+'.xlsx')
+    share_wb = load_workbook(code+'.xlsx')
+    share_ws = wb.get_sheet_by_name("Sheet1")
+
+
+    equity_wb = Workbook()
+    equity_ws = equity_wb.get_sheet_by_name('Sheet')
+    equity_max_len = len(tuple(equity_ws.rows)) + 2
+    e = equity_max_len
+    equity_ws['A1'].value = '股票代码'
+    equity_ws['B1'].value = '当前价格'
+    equity_ws['C1'].value = '流通市值'
+    equity_ws['A'+str(e)].value = code
+    equity_ws['B'+str(e)].value = share_ws['D2'].value
+    equity_ws['C'+str(e)].value = share_ws['D2'].value * flow
+    equity_wb.save('cixin.xlsx')
+
+
+def kaiban(code):
+
+    share_wb = load_workbook(code+'.xlsx')
+    share_ws = wb.get_sheet_by_name("Sheet1")
+    share_max_len = len(tuple(share_ws.rows)) + 1
+
+
 for i in range(2, max_len):
     date = ws['P'+str(i)].value
-    y, m, d = get_date(date)
-    if y > 2013:
+    if date > 20170901:
         code = str(ws['A'+str(i)].value)
-        if first_month(code):
-            print(code)
+        flow = int(ws['F'+str(i)].value)
+        name = str(ws['B'+str(i)].value)
+        count_equity(code, flow)
